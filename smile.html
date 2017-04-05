@@ -1,0 +1,124 @@
+
+<!-- saved from url=(0031)http://schlierf.info/smile.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252"></head><body>
+		<style>
+		html, body {
+		  width:  100%;
+		  height: 100%;
+		  margin: 0px;
+		}
+		</style>
+		<canvas id="myCanvas" width="1920" height="950" style="border:0px;margin:0px;padding:0px;">
+		Your browser does not support the canvas element.
+		</canvas>
+		<script src="js/Vector2.js"></script>
+		<script language="javascript">
+			var canvas = document.getElementById("myCanvas");
+			var ctx = canvas.getContext("2d");
+			ctx.canvas.width  = window.innerWidth;
+			ctx.canvas.height = window.innerHeight;
+			var mousepos = new Vector2(canvas.width/2,canvas.height/2);
+			var pmousepos = new Vector2(0,0);
+			
+			var size=100;
+
+			window.addEventListener('mousemove', mousePos, false);
+			var anim = setInterval(draw,1000/60);
+			
+			function mousePos(e) {
+				pmousepos = mousepos;
+				mousepos = getMousePos(canvas, e);
+			}
+			
+			function drawFace(ctx) {
+				ctx.fillStyle = "#FF0000";
+				ctx.beginPath();
+				ctx.arc(mousepos.x,mousepos.y,40,0,360);
+				ctx.stroke();
+			}
+
+			function getMousePos(canvas, evt) {
+				var rect = canvas.getBoundingClientRect();
+				return new Vector2(evt.clientX - rect.left, evt.clientY - rect.top);
+			}
+
+			function draw(){
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				for (i = 0; i < canvas.width; i+=size)
+					for (j = 0; j < canvas.height; j+=size)
+						drawHead(i,j,size);
+			}
+			
+			function subtractVector(v1,v2) {
+				return new Vector2(v1.x - v2.x, v1.y-v2.y );
+			}
+			
+			function normalizeVector(v1) {
+				var len = lengthVector(v1);
+				return new Vector2((v1.x/len), (v1.y/len));
+			}
+			
+			function lengthVector(v1) {
+				return Math.sqrt(v1.x * v1.x + v1.y * v1.y);;
+			}
+		
+			function drawHead(x, y, size) {  
+				size = size/2;
+				v1 = new Vector2(x-(size/3), y-(size/3));
+				v2 = new Vector2(x+(size/3), y-(size/3)); 
+
+				vmouse = new Vector2(mousepos.x, mousepos.y);     
+				v1distance = vmouse.sub(v1);   
+				v2distance = vmouse.sub(v2);   
+				v1normalizeddistance = v1distance.norm();   
+				v2normalizeddistance = v2distance.norm();     
+				ctx.lineWidth=2;
+				//Kopf   
+				ctx.beginPath();
+				ctx.fillStyle = "#FFFF00";   
+				ctx.arc(x,y,size,0,2*Math.PI);  
+				ctx.stroke();
+				ctx.fill();				
+				//*/
+				
+				//Augapfel   
+				ctx.beginPath();
+				ctx.fillStyle = "#FFFFFF";   
+				ctx.arc(v1.x,v1.y,(size/3.5),0,2*Math.PI);   
+				ctx.stroke();	
+				ctx.fill();
+				ctx.beginPath();
+				ctx.arc(v2.x,v2.y,(size/3.5),0,2*Math.PI);   
+				ctx.stroke();
+				ctx.fill();				
+				//*/
+				
+				//Pupille   
+				ctx.fillStyle = "#000000";   
+				//factor to multiply to the length of the moving eyes
+				factor = 8;   
+				ctx.beginPath();
+				ctx.arc(v1.x+(v1normalizeddistance.x*factor),v1.y+(v1normalizeddistance.y*factor),(size/10),0,2*Math.PI);   
+				ctx.stroke();
+				ctx.fill();
+				ctx.beginPath();
+				ctx.arc(v2.x+(v2normalizeddistance.x*factor),v2.y+(v2normalizeddistance.y*factor),(size/10),0,2*Math.PI); 
+				ctx.stroke();	
+				ctx.fill();
+				//*/
+				
+				//Mund
+				ctx.fillStyle = "#000000";   
+				ctx.lineWidth=5;
+				factor = 8;   
+				ctx.beginPath();
+				ctx.moveTo(v1.x-(size/4),v1.y+(size/3*2));
+				ctx.quadraticCurveTo(v1.x+((v2.x-v1.x)/2),v1.y+(size*1.2)-Math.min(50,lengthVector(v1distance)/20),v2.x+(size/4),v2.y+(size/3*2)); 
+				ctx.stroke();	
+			}
+			//*/
+			
+		</script>
+	
+
+</body></html>

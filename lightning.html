@@ -1,0 +1,93 @@
+<html>
+	
+	<body>
+		<style>
+		html, body {
+		  width:  100%;
+		  height: 100%;
+		  margin: 0px;
+		}
+		</style>
+		<canvas id="myCanvas" width="100" height="100" style="border:0px;margin:0px;padding:0px;">
+		Your browser does not support the canvas element.
+		</canvas>
+		<script src="js/Vector2.js"></script>
+		<script language="javascript">
+			var canvas = document.getElementById("myCanvas");
+			var ctx = canvas.getContext("2d");
+			ctx.canvas.width  = window.innerWidth;
+			ctx.canvas.height = window.innerHeight;
+			var mousepos = new Vector2(canvas.width/2,canvas.height/2);
+			var pmousepos = new Vector2(0,0);
+			
+			var size=100;
+			
+			window.addEventListener('mousemove', mousePos, false);
+			var anim = setInterval(draw,1000/60);
+			
+			function mousePos(e) {
+				pmousepos = mousepos;
+				mousepos = getMousePos(canvas, e);
+			}
+			
+			function getMousePos(canvas, evt) {
+				var rect = canvas.getBoundingClientRect();
+				return new Vector2(evt.clientX - rect.left,evt.clientY - rect.top);
+			}
+			
+			function draw(){
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				drawJaggedLineToMouse(ctx,new Vector2(),mousepos);
+			}
+			
+			function drawJaggedLineToMouse(ctx,source,dest) {
+				tangent = dest.sub(source);
+				norm = new Vector2(tangent.y,-tangent.x).norm();
+				length = tangent.length();
+				
+				var positions = new Array();
+				positions.push(0);
+			 
+				for (i = 0; i < length / 1; i++)
+					positions.push(Math.random());
+				
+				positions.sort();				
+
+				Sway = 80;
+				Jaggedness = 1 / Sway;
+				
+				prevPoint = source;
+				prevDisplacement = 0.0;
+
+				ctx.beginPath();
+				ctx.moveTo(source.x,source.y);
+				flip = true;
+				for (i = 1; i <= positions.length-1; i++)
+				{
+					pos = positions[i];
+			 
+					// used to prevent sharp angles by ensuring very close positions also have small perpendicular variation.
+					scale = (length * Jaggedness) * (pos - positions[i - 1]);
+			 
+					// defines an envelope. Points near the middle of the bolt can be further from the central line.
+					envelope = pos > 0.95 ? 20 * (1 - pos) : 1;
+					ransway = Math.floor(Math.random()*2) == 1 ? 1 : -1;
+					displacement = Math.random()*ransway*Sway;
+					displacement -= (displacement - prevDisplacement) * (1 - scale);
+					displacement *= envelope;
+					tpos = tangent.mult(pos);
+					ndis=norm.mult(displacement);
+					point = source.add(tpos).add(ndis);
+					ctx.lineTo(prevPoint.x,prevPoint.y, point.x,point.y);
+					prevPoint = point;
+					prevDisplacement = displacement;
+				}
+				
+				ctx.lineTo(dest.x,dest.y);
+				ctx.stroke();
+			}
+			
+			
+		</script>
+	</body>
+</html>
